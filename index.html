@@ -1,0 +1,2016 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APO - Мессенджер</title>
+    <style>
+        body {
+            margin: 0;
+            background: #0f0b1f;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        .gradient-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(157, 107, 204, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(107, 63, 160, 0.15) 0%, transparent 50%);
+            z-index: -2;
+        }
+
+        .app-container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+        }
+
+        .auth-screen {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .auth-card {
+            background: rgba(25, 18, 48, 0.95);
+            border: 1px solid rgba(157, 107, 204, 0.3);
+            border-radius: 24px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 40px rgba(45, 27, 105, 0.4);
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 48px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #9d6bcc 0%, #6b3fa0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .app-name {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #ffffff;
+        }
+
+        .app-subtitle {
+            font-size: 14px;
+            color: #b39fdb;
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .form-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #ffffff;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px;
+            color: #b39fdb;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px;
+            background: rgba(45, 27, 105, 0.4);
+            border: 1px solid rgba(157, 107, 204, 0.3);
+            border-radius: 10px;
+            color: #ffffff;
+            font-size: 14px;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #9d6bcc;
+            background: rgba(45, 27, 105, 0.6);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #9d6bcc, #6b3fa0);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(45, 27, 105, 0.4);
+            color: #b39fdb;
+            border: 1px solid rgba(157, 107, 204, 0.3);
+        }
+
+        .main-app {
+            display: none;
+            width: 100%;
+            height: 100vh;
+        }
+
+        .app-sidebar {
+            width: 250px;
+            background: rgba(25, 18, 48, 0.95);
+            border-right: 1px solid rgba(157, 107, 204, 0.2);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 10px;
+            background: rgba(45, 27, 105, 0.4);
+            margin-bottom: 20px;
+        }
+
+        .user-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #9d6bcc, #6b3fa0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 3px;
+            color: #ffffff;
+        }
+
+        .user-status {
+            font-size: 11px;
+            color: #8a6bbe;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-indicator {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #4ade80;
+        }
+
+        .user-ip {
+            font-size: 10px;
+            color: #8a6bbe;
+            background: rgba(107, 63, 160, 0.2);
+            padding: 3px 6px;
+            border-radius: 6px;
+            margin-top: 4px;
+            cursor: pointer;
+        }
+
+        .nav-menu {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .nav-item {
+            padding: 12px 14px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            color: #b39fdb;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            background: rgba(157, 107, 204, 0.1);
+            color: #ffffff;
+        }
+
+        .nav-item.active {
+            background: rgba(157, 107, 204, 0.2);
+            color: #ffffff;
+            border-left: 3px solid #9d6bcc;
+        }
+
+        .nav-icon {
+            font-size: 18px;
+            width: 20px;
+        }
+
+        .nav-badge {
+            margin-left: auto;
+            background: linear-gradient(135deg, #ff6b9d, #e83e8c);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .search-box {
+            margin-top: 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(45, 27, 105, 0.4);
+            border: 1px solid rgba(157, 107, 204, 0.3);
+            border-radius: 10px;
+            color: #ffffff;
+            font-size: 13px;
+        }
+
+        .app-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(19, 15, 38, 0.9);
+        }
+
+        .content-header {
+            padding: 18px 25px;
+            border-bottom: 1px solid rgba(157, 107, 204, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(157, 107, 204, 0.2);
+            color: #b39fdb;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+        }
+
+        .page-content {
+            display: none;
+            height: 100%;
+        }
+
+        .page-content.active {
+            display: block;
+        }
+
+        .chats-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .chat-item {
+            background: rgba(45, 27, 105, 0.4);
+            border: 1px solid rgba(157, 107, 204, 0.2);
+            border-radius: 14px;
+            padding: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .chat-item:hover {
+            border-color: #9d6bcc;
+        }
+
+        .chat-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #9d6bcc, #6b3fa0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .chat-info {
+            flex: 1;
+        }
+
+        .chat-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 3px;
+            color: #ffffff;
+        }
+
+        .last-message {
+            color: #b39fdb;
+            font-size: 13px;
+        }
+
+        .search-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            background: rgba(45, 27, 105, 0.4);
+            padding: 6px;
+            border-radius: 10px;
+        }
+
+        .search-tab {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            background: transparent;
+            color: #b39fdb;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+
+        .search-tab.active {
+            background: rgba(157, 107, 204, 0.3);
+            color: #ffffff;
+        }
+
+        .search-form {
+            margin-bottom: 25px;
+        }
+
+        .search-form .form-input {
+            margin-bottom: 12px;
+        }
+
+        .search-results {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .user-card {
+            background: rgba(45, 27, 105, 0.4);
+            border: 1px solid rgba(157, 107, 204, 0.2);
+            border-radius: 14px;
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .user-card:hover {
+            border-color: #9d6bcc;
+        }
+
+        .user-avatar-md {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #9d6bcc, #6b3fa0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .user-details {
+            flex: 1;
+        }
+
+        .user-name-md {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 3px;
+            color: #ffffff;
+        }
+
+        .user-ip-display {
+            font-size: 12px;
+            color: #8a6bbe;
+            margin-bottom: 6px;
+        }
+
+        .user-status-md {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            color: #4ade80;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn-sm {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .action-btn-primary {
+            background: linear-gradient(135deg, #9d6bcc, #6b3fa0);
+            color: white;
+        }
+
+        .action-btn-secondary {
+            background: rgba(45, 27, 105, 0.6);
+            color: #b39fdb;
+            border: 1px solid rgba(157, 107, 204, 0.3);
+        }
+
+        .calls-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .call-item {
+            background: rgba(45, 27, 105, 0.4);
+            border: 1px solid rgba(157, 107, 204, 0.2);
+            border-radius: 14px;
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .call-type {
+            font-size: 22px;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(157, 107, 204, 0.2);
+        }
+
+        .call-info {
+            flex: 1;
+        }
+
+        .call-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 3px;
+            color: #ffffff;
+        }
+
+        .call-details {
+            color: #b39fdb;
+            font-size: 13px;
+        }
+
+        .requests-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .settings-card {
+            background: rgba(45, 27, 105, 0.4);
+            border: 1px solid rgba(157, 107, 204, 0.2);
+            border-radius: 14px;
+            padding: 22px;
+        }
+
+        .settings-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 18px;
+            color: #ffffff;
+        }
+
+        .chat-window {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            background: rgba(25, 18, 48, 0.9);
+            border-radius: 14px;
+            overflow: hidden;
+        }
+
+        .chat-header-bar {
+            padding: 18px;
+            background: rgba(45, 27, 105, 0.6);
+            border-bottom: 1px solid rgba(157, 107, 204, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chat-partner {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 22px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message {
+            max-width: 70%;
+            padding: 12px;
+            border-radius: 16px;
+            position: relative;
+        }
+
+        .message.outgoing {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #9d6bcc, #6b3fa0);
+            color: white;
+        }
+
+        .message.incoming {
+            align-self: flex-start;
+            background: rgba(45, 27, 105, 0.6);
+            color: #ffffff;
+            border: 1px solid rgba(157, 107, 204, 0.2);
+        }
+
+        .message-text {
+            margin-bottom: 4px;
+        }
+
+        .message-time {
+            font-size: 11px;
+            opacity: 0.7;
+            text-align: right;
+        }
+
+        .message-input-area {
+            padding: 18px;
+            background: rgba(45, 27, 105, 0.6);
+            border-top: 1px solid rgba(157, 107, 204, 0.2);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 14px;
+            background: rgba(25, 18, 48, 0.8);
+            border: 1px solid rgba(157, 107, 204, 0.3);
+            border-radius: 10px;
+            color: #ffffff;
+            font-size: 14px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(25, 18, 48, 0.95);
+            border: 1px solid rgba(157, 107, 204, 0.3);
+            border-radius: 10px;
+            padding: 12px 18px;
+            color: white;
+            display: none;
+            z-index: 1000;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(45, 27, 105, 0.2);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #9d6bcc, #6b3fa0);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="gradient-bg"></div>
+    <div class="notification" id="notification"></div>
+    
+    <div class="app-container">
+        <div class="auth-screen" id="authScreen">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <div class="logo">APO</div>
+                    <div class="app-name">APO Мессенджер</div>
+                    <div class="app-subtitle">Общайтесь, звоните, находите друзей</div>
+                </div>
+
+                <div class="auth-form active" id="registerForm">
+                    <h2 class="form-title">Регистрация</h2>
+                    <div class="form-group">
+                        <label class="form-label">Ваше имя</label>
+                        <input type="text" class="form-input" id="inputName" placeholder="Иван Иванов">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Имя пользователя</label>
+                        <input type="text" class="form-input" id="inputUsername" placeholder="ivan2024">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Пароль</label>
+                        <input type="password" class="form-input" id="inputPassword" placeholder="••••••••">
+                    </div>
+                    <button class="btn btn-primary" id="btnRegister">Зарегистрироваться</button>
+                    <button class="btn btn-secondary" id="btnSwitchToLogin">Уже есть аккаунт? Войти</button>
+                    <div id="registerError" style="color: #ff6b9d; margin-top: 10px; text-align: center;"></div>
+                </div>
+
+                <div class="auth-form" id="loginForm">
+                    <h2 class="form-title">Вход</h2>
+                    <div class="form-group">
+                        <label class="form-label">Имя пользователя</label>
+                        <input type="text" class="form-input" id="loginUsername" placeholder="ivan2024">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Пароль</label>
+                        <input type="password" class="form-input" id="loginPassword" placeholder="••••••••">
+                    </div>
+                    <button class="btn btn-primary" id="btnLogin">Войти</button>
+                    <button class="btn btn-secondary" id="btnSwitchToRegister">Создать новый аккаунт</button>
+                    <div id="loginError" style="color: #ff6b9d; margin-top: 10px; text-align: center;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-app" id="mainApp">
+            <div class="app-sidebar">
+                <div class="sidebar-header">
+                    <div class="user-profile">
+                        <div class="user-avatar" id="sidebarAvatar">И</div>
+                        <div class="user-info">
+                            <div class="user-name" id="sidebarName">Иван Иванов</div>
+                            <div class="user-status">
+                                <span class="status-indicator"></span>
+                                <span id="sidebarStatus">В сети</span>
+                            </div>
+                            <div class="user-ip" id="sidebarIP" title="Нажмите для копирования">IP: 192.168.1.1</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="nav-menu">
+                    <div class="nav-item active" data-page="chats">
+                        <span class="nav-icon">💬</span>
+                        <span>Чаты</span>
+                        <span class="nav-badge" id="badgeChats">3</span>
+                    </div>
+                    <div class="nav-item" data-page="search">
+                        <span class="nav-icon">🔍</span>
+                        <span>Найти друзей</span>
+                    </div>
+                    <div class="nav-item" data-page="friends">
+                        <span class="nav-icon">👥</span>
+                        <span>Друзья</span>
+                        <span class="nav-badge" id="badgeFriends">5</span>
+                    </div>
+                    <div class="nav-item" data-page="calls">
+                        <span class="nav-icon">📞</span>
+                        <span>Звонки</span>
+                        <span class="nav-badge" id="badgeCalls">2</span>
+                    </div>
+                    <div class="nav-item" data-page="requests">
+                        <span class="nav-icon">📨</span>
+                        <span>Запросы</span>
+                        <span class="nav-badge" id="badgeRequests">1</span>
+                    </div>
+                    <div class="nav-item" data-page="settings">
+                        <span class="nav-icon">⚙️</span>
+                        <span>Настройки</span>
+                    </div>
+                </div>
+
+                <div class="search-box">
+                    <input type="text" class="search-input" placeholder="Поиск..." id="sidebarSearch">
+                </div>
+            </div>
+
+            <div class="app-content">
+                <div class="content-header">
+                    <div class="page-title" id="pageTitle">Мои чаты</div>
+                    <div class="header-actions">
+                        <button class="action-btn" title="Новый чат" id="btnNewChat">✏️</button>
+                        <button class="action-btn" title="Выход" id="btnLogout">🚪</button>
+                    </div>
+                </div>
+
+                <div class="content-area" id="contentArea">
+                    <div class="page-content active" id="pageChats">
+                        <div class="chats-list" id="chatsList"></div>
+                    </div>
+
+                    <div class="page-content" id="pageSearch">
+                        <div class="search-tabs">
+                            <button class="search-tab active" data-search-type="name">По имени</button>
+                            <button class="search-tab" data-search-type="ip">По IP</button>
+                            <button class="search-tab" data-search-type="username">По логину</button>
+                        </div>
+                        
+                        <div class="search-form">
+                            <input type="text" class="form-input" id="searchInput" placeholder="Введите имя пользователя...">
+                            <button class="action-btn-sm action-btn-primary" id="btnSearch">🔍 Найти</button>
+                        </div>
+
+                        <div class="search-results" id="searchResults"></div>
+                    </div>
+
+                    <div class="page-content" id="pageFriends">
+                        <div class="search-results" id="friendsList"></div>
+                    </div>
+
+                    <div class="page-content" id="pageCalls">
+                        <div class="calls-list" id="callsList"></div>
+                    </div>
+
+                    <div class="page-content" id="pageRequests">
+                        <div class="requests-list" id="requestsList"></div>
+                    </div>
+
+                    <div class="page-content" id="pageSettings">
+                        <div class="settings-grid">
+                            <div class="settings-card">
+                                <div class="settings-title">Профиль</div>
+                                <div class="form-group">
+                                    <label class="form-label">Имя</label>
+                                    <input type="text" class="form-input" id="settingName">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Статус</label>
+                                    <input type="text" class="form-input" id="settingStatus" value="В сети">
+                                </div>
+                                <button class="action-btn-sm action-btn-primary" id="btnSaveProfile">Сохранить</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="page-content" id="pageChat">
+                        <div class="chat-window">
+                            <div class="chat-header-bar">
+                                <div class="chat-partner">
+                                    <button class="action-btn" id="btnBackToChats">←</button>
+                                    <div class="user-avatar-md" id="chatPartnerAvatar">А</div>
+                                    <div>
+                                        <div class="user-name-md" id="chatPartnerName">Алексей</div>
+                                        <div class="user-status-md">
+                                            <span class="status-indicator"></span>
+                                            <span id="chatPartnerStatus">В сети</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="user-actions">
+                                    <button class="action-btn-sm action-btn-primary" id="btnStartCall">📞 Звонок</button>
+                                    <button class="action-btn-sm action-btn-secondary" id="btnVideoCall">📹 Видео</button>
+                                </div>
+                            </div>
+                            
+                            <div class="chat-messages" id="chatMessages"></div>
+                            
+                            <div class="message-input-area">
+                                <input type="text" class="message-input" id="messageInput" placeholder="Введите сообщение...">
+                                <button class="action-btn-sm action-btn-primary" id="btnSendMessage">Отправить</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class APOMessenger {
+            constructor() {
+                this.currentUser = null;
+                this.currentPage = 'chats';
+                this.currentChat = null;
+                this.users = [];
+                this.friends = [];
+                this.messages = [];
+                this.requests = [];
+                this.calls = [];
+                
+                this.init();
+            }
+            
+            init() {
+                this.loadData();
+                this.setupEventListeners();
+                
+                const savedUser = localStorage.getItem('apo_current_user');
+                if (savedUser) {
+                    this.currentUser = JSON.parse(savedUser);
+                    this.showMainApp();
+                }
+            }
+            
+            loadData() {
+                const savedUsers = localStorage.getItem('apo_users');
+                this.users = savedUsers ? JSON.parse(savedUsers) : [];
+                
+                if (this.users.length === 0) {
+                    this.createTestUsers();
+                }
+            }
+            
+            saveData() {
+                localStorage.setItem('apo_users', JSON.stringify(this.users));
+                if (this.currentUser) {
+                    localStorage.setItem('apo_current_user', JSON.stringify(this.currentUser));
+                    
+                    const userData = {
+                        friends: this.friends.filter(f => f.userId === this.currentUser.id),
+                        messages: this.messages.filter(m => m.senderId === this.currentUser.id || m.receiverId === this.currentUser.id),
+                        requests: this.requests.filter(r => r.fromId === this.currentUser.id || r.toId === this.currentUser.id),
+                        calls: this.calls.filter(c => c.userId === this.currentUser.id)
+                    };
+                    
+                    localStorage.setItem(`apo_data_${this.currentUser.id}`, JSON.stringify(userData));
+                }
+            }
+            
+            loadUserData() {
+                if (!this.currentUser) return;
+                
+                const userData = localStorage.getItem(`apo_data_${this.currentUser.id}`);
+                if (userData) {
+                    const data = JSON.parse(userData);
+                    this.friends = data.friends || [];
+                    this.messages = data.messages || [];
+                    this.requests = data.requests || [];
+                    this.calls = data.calls || [];
+                }
+                
+                // Загружаем друзей и сообщения от других пользователей
+                this.loadFriendsAndMessagesFromOtherUsers();
+                
+                if (this.friends.length === 0 && this.currentUser.username === 'ivan') {
+                    this.createTestUserData();
+                }
+            }
+            
+            // Загружаем друзей и сообщения от других пользователей
+            loadFriendsAndMessagesFromOtherUsers() {
+                if (!this.currentUser) return;
+                
+                // Перебираем всех пользователей и ищем связи с текущим пользователем
+                this.users.forEach(user => {
+                    if (user.id !== this.currentUser.id) {
+                        const userDataKey = `apo_data_${user.id}`;
+                        const userDataStr = localStorage.getItem(userDataKey);
+                        
+                        if (userDataStr) {
+                            const userData = JSON.parse(userDataStr);
+                            
+                            // Загружаем дружбу, если текущий пользователь есть в друзьях у другого пользователя
+                            if (userData.friends) {
+                                const friendship = userData.friends.find(f => f.friendId === this.currentUser.id);
+                                if (friendship && !this.friends.find(f => f.friendId === user.id)) {
+                                    // Добавляем взаимную дружбу
+                                    this.friends.push({
+                                        id: `friend_${Date.now()}`,
+                                        userId: this.currentUser.id,
+                                        friendId: user.id
+                                    });
+                                }
+                            }
+                            
+                            // Загружаем сообщения, адресованные текущему пользователю
+                            if (userData.messages) {
+                                const messagesForMe = userData.messages.filter(msg => 
+                                    msg.receiverId === this.currentUser.id
+                                );
+                                
+                                messagesForMe.forEach(msg => {
+                                    if (!this.messages.find(m => m.id === msg.id)) {
+                                        this.messages.push(msg);
+                                    }
+                                });
+                            }
+                            
+                            // Загружаем запросы, адресованные текущему пользователю
+                            if (userData.requests) {
+                                const requestsForMe = userData.requests.filter(req => 
+                                    req.toId === this.currentUser.id && req.status === 'pending'
+                                );
+                                
+                                requestsForMe.forEach(req => {
+                                    if (!this.requests.find(r => r.id === req.id)) {
+                                        this.requests.push(req);
+                                    }
+                                });
+                            }
+                        }
+                    }
+                });
+            }
+            
+            createTestUsers() {
+                this.users = [
+                    {
+                        id: 'user_1',
+                        name: 'Иван Иванов',
+                        username: 'ivan',
+                        password: '123',
+                        avatar: 'И',
+                        status: 'В сети',
+                        ip: '192.168.1.100',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: 'user_2',
+                        name: 'Алексей Волков',
+                        username: 'alex',
+                        password: '123',
+                        avatar: 'А',
+                        status: 'В сети',
+                        ip: '192.168.1.101',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: 'user_3',
+                        name: 'Мария Соколова',
+                        username: 'maria',
+                        password: '123',
+                        avatar: 'М',
+                        status: 'В сети',
+                        ip: '192.168.1.102',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: 'user_4',
+                        name: 'Дмитрий Петров',
+                        username: 'dmitry',
+                        password: '123',
+                        avatar: 'Д',
+                        status: 'Не в сети',
+                        ip: '192.168.1.103',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: 'user_5',
+                        name: 'Екатерина Сидорова',
+                        username: 'ekaterina',
+                        password: '123',
+                        avatar: 'Е',
+                        status: 'В сети',
+                        ip: '192.168.1.104',
+                        createdAt: new Date().toISOString()
+                    }
+                ];
+                
+                this.saveData();
+            }
+            
+            createTestUserData() {
+                if (!this.currentUser) return;
+                
+                // Создаем начальных друзей для пользователя Иван
+                if (this.currentUser.username === 'ivan') {
+                    this.friends = [
+                        { id: 'friend_1', userId: this.currentUser.id, friendId: 'user_2' },
+                        { id: 'friend_2', userId: this.currentUser.id, friendId: 'user_3' }
+                    ];
+                    
+                    this.messages = [
+                        {
+                            id: 'msg_1',
+                            senderId: this.currentUser.id,
+                            receiverId: 'user_2',
+                            text: 'Привет! Как дела?',
+                            timestamp: Date.now() - 3600000,
+                            read: true
+                        },
+                        {
+                            id: 'msg_2',
+                            senderId: 'user_2',
+                            receiverId: this.currentUser.id,
+                            text: 'Привет! Всё отлично, спасибо!',
+                            timestamp: Date.now() - 3500000,
+                            read: true
+                        }
+                    ];
+                    
+                    this.requests = [
+                        {
+                            id: 'req_1',
+                            fromId: 'user_4',
+                            fromName: 'Дмитрий Петров',
+                            fromAvatar: 'Д',
+                            fromUsername: 'dmitry',
+                            fromIp: '192.168.1.103',
+                            toId: this.currentUser.id,
+                            status: 'pending',
+                            timestamp: Date.now() - 86400000
+                        }
+                    ];
+                    
+                    // Создаем взаимную дружбу и сообщения для других пользователей
+                    this.createReciprocalData('user_2', 'Алексей Волков');
+                    this.createReciprocalData('user_3', 'Мария Соколова');
+                }
+                
+                this.calls = [];
+                
+                this.saveData();
+            }
+            
+            // Создает взаимные данные для другого пользователя
+            createReciprocalData(friendId, friendName) {
+                // Создаем дружбу для другого пользователя
+                const friendDataKey = `apo_data_${friendId}`;
+                let friendData = {
+                    friends: [
+                        { id: `friend_${Date.now()}`, userId: friendId, friendId: this.currentUser.id }
+                    ],
+                    messages: [
+                        {
+                            id: `msg_reciprocal_${friendId}`,
+                            senderId: friendId,
+                            receiverId: this.currentUser.id,
+                            text: `Привет! Я ${friendName}`,
+                            timestamp: Date.now() - 3000000,
+                            read: false
+                        }
+                    ],
+                    requests: [],
+                    calls: []
+                };
+                
+                // Сохраняем данные друга
+                localStorage.setItem(friendDataKey, JSON.stringify(friendData));
+            }
+            
+            setupEventListeners() {
+                document.getElementById('btnRegister').onclick = () => this.register();
+                document.getElementById('btnLogin').onclick = () => this.login();
+                document.getElementById('btnSwitchToLogin').onclick = () => this.showLoginForm();
+                document.getElementById('btnSwitchToRegister').onclick = () => this.showRegisterForm();
+                
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.onclick = (e) => {
+                        const page = e.currentTarget.dataset.page;
+                        this.showPage(page);
+                    };
+                });
+                
+                document.getElementById('btnSearch').onclick = () => this.performSearch();
+                document.getElementById('searchInput').onkeypress = (e) => {
+                    if (e.key === 'Enter') this.performSearch();
+                };
+                
+                document.querySelectorAll('.search-tab').forEach(tab => {
+                    tab.onclick = (e) => {
+                        document.querySelectorAll('.search-tab').forEach(t => t.classList.remove('active'));
+                        e.target.classList.add('active');
+                    };
+                });
+                
+                document.getElementById('btnSendMessage').onclick = () => this.sendMessage();
+                document.getElementById('messageInput').onkeypress = (e) => {
+                    if (e.key === 'Enter') this.sendMessage();
+                };
+                
+                document.getElementById('btnSaveProfile').onclick = () => this.saveProfile();
+                document.getElementById('btnNewChat').onclick = () => this.showPage('search');
+                document.getElementById('btnLogout').onclick = () => this.logout();
+                document.getElementById('btnBackToChats').onclick = () => this.showPage('chats');
+                document.getElementById('btnStartCall').onclick = () => this.startCall('audio');
+                document.getElementById('btnVideoCall').onclick = () => this.startCall('video');
+                document.getElementById('sidebarIP').onclick = () => this.copyIP();
+            }
+            
+            register() {
+                const name = document.getElementById('inputName').value.trim();
+                const username = document.getElementById('inputUsername').value.trim();
+                const password = document.getElementById('inputPassword').value;
+                const errorEl = document.getElementById('registerError');
+                
+                if (!name || !username || !password) {
+                    errorEl.textContent = 'Заполните все поля';
+                    return;
+                }
+                
+                if (this.users.some(u => u.username === username)) {
+                    errorEl.textContent = 'Это имя пользователя уже занято';
+                    return;
+                }
+                
+                const ip = `192.168.1.${Math.floor(Math.random() * 255)}`;
+                
+                this.currentUser = {
+                    id: `user_${Date.now()}`,
+                    name: name,
+                    username: username,
+                    password: password,
+                    avatar: name.charAt(0).toUpperCase(),
+                    status: 'В сети',
+                    ip: ip,
+                    createdAt: new Date().toISOString()
+                };
+                
+                this.users.push(this.currentUser);
+                this.saveData();
+                this.loadUserData();
+                this.showMainApp();
+            }
+            
+            login() {
+                const username = document.getElementById('loginUsername').value.trim();
+                const password = document.getElementById('loginPassword').value;
+                const errorEl = document.getElementById('loginError');
+                
+                if (!username || !password) {
+                    errorEl.textContent = 'Заполните все поля';
+                    return;
+                }
+                
+                const user = this.users.find(u => u.username === username && u.password === password);
+                
+                if (!user) {
+                    errorEl.textContent = 'Неверное имя пользователя или пароль';
+                    return;
+                }
+                
+                this.currentUser = user;
+                this.saveData();
+                this.loadUserData();
+                this.showMainApp();
+            }
+            
+            showLoginForm() {
+                document.getElementById('registerForm').classList.remove('active');
+                document.getElementById('loginForm').classList.add('active');
+                document.getElementById('registerError').textContent = '';
+                document.getElementById('loginError').textContent = '';
+            }
+            
+            showRegisterForm() {
+                document.getElementById('loginForm').classList.remove('active');
+                document.getElementById('registerForm').classList.add('active');
+                document.getElementById('registerError').textContent = '';
+                document.getElementById('loginError').textContent = '';
+            }
+            
+            showMainApp() {
+                document.getElementById('authScreen').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'flex';
+                this.updateUserInfo();
+                this.showPage('chats');
+            }
+            
+            updateUserInfo() {
+                if (!this.currentUser) return;
+                
+                document.getElementById('sidebarAvatar').textContent = this.currentUser.avatar;
+                document.getElementById('sidebarName').textContent = this.currentUser.name;
+                document.getElementById('sidebarStatus').textContent = this.currentUser.status;
+                document.getElementById('sidebarIP').textContent = `IP: ${this.currentUser.ip}`;
+                document.getElementById('settingName').value = this.currentUser.name;
+                document.getElementById('settingStatus').value = this.currentUser.status;
+            }
+            
+            showPage(pageId) {
+                this.currentPage = pageId;
+                
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                
+                if (pageId !== 'chat') {
+                    const navItem = document.querySelector(`[data-page="${pageId}"]`);
+                    if (navItem) navItem.classList.add('active');
+                }
+                
+                const titles = {
+                    chats: 'Мои чаты',
+                    search: 'Поиск друзей',
+                    friends: 'Мои друзья',
+                    calls: 'Звонки',
+                    requests: 'Запросы',
+                    settings: 'Настройки',
+                    chat: 'Чат'
+                };
+                document.getElementById('pageTitle').textContent = titles[pageId] || '';
+                
+                document.querySelectorAll('.page-content').forEach(page => {
+                    page.classList.remove('active');
+                });
+                
+                const pageElement = document.getElementById(`page${pageId.charAt(0).toUpperCase() + pageId.slice(1)}`);
+                if (pageElement) {
+                    pageElement.classList.add('active');
+                    
+                    switch(pageId) {
+                        case 'chats':
+                            this.renderChats();
+                            break;
+                        case 'friends':
+                            this.renderFriends();
+                            break;
+                        case 'requests':
+                            this.renderRequests();
+                            break;
+                        case 'calls':
+                            this.renderCalls();
+                            break;
+                        case 'search':
+                            this.clearSearch();
+                            break;
+                    }
+                }
+            }
+            
+            renderChats() {
+                const container = document.getElementById('chatsList');
+                
+                const friendIds = this.friends
+                    .filter(f => f.userId === this.currentUser.id)
+                    .map(f => f.friendId);
+                
+                const friends = this.users.filter(user => friendIds.includes(user.id));
+                
+                if (friends.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #b39fdb;">
+                            <div style="font-size: 48px; margin-bottom: 16px;">💬</div>
+                            <div style="font-size: 18px; margin-bottom: 8px;">Нет чатов</div>
+                            <div style="font-size: 14px;">Найдите друзей через поиск и начните общение</div>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = friends.map(friend => {
+                    const lastMessage = this.messages
+                        .filter(m => 
+                            (m.senderId === this.currentUser.id && m.receiverId === friend.id) ||
+                            (m.senderId === friend.id && m.receiverId === this.currentUser.id)
+                        )
+                        .sort((a, b) => b.timestamp - a.timestamp)[0];
+                    
+                    return `
+                        <div class="chat-item" onclick="messenger.openChat('${friend.id}')">
+                            <div class="chat-avatar" style="background: ${this.getAvatarColor(friend.id)};">
+                                ${friend.avatar}
+                            </div>
+                            <div class="chat-info">
+                                <div class="chat-name">${friend.name}</div>
+                                <div class="last-message">
+                                    ${lastMessage ? lastMessage.text.substring(0, 50) + '...' : 'Нет сообщений'}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                document.getElementById('badgeChats').textContent = friends.length;
+            }
+            
+            renderFriends() {
+                const container = document.getElementById('friendsList');
+                
+                const friendIds = this.friends
+                    .filter(f => f.userId === this.currentUser.id)
+                    .map(f => f.friendId);
+                
+                const friends = this.users.filter(user => friendIds.includes(user.id));
+                
+                if (friends.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #b39fdb;">
+                            <div style="font-size: 48px; margin-bottom: 16px;">👥</div>
+                            <div style="font-size: 18px; margin-bottom: 8px;">Нет друзей</div>
+                            <div style="font-size: 14px;">Найдите друзей через поиск</div>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = friends.map(friend => `
+                    <div class="user-card">
+                        <div class="user-avatar-md" style="background: ${this.getAvatarColor(friend.id)};">
+                            ${friend.avatar}
+                        </div>
+                        <div class="user-details">
+                            <div class="user-name-md">${friend.name}</div>
+                            <div class="user-ip-display">IP: ${friend.ip}</div>
+                            <div class="user-status-md">
+                                <span class="status-indicator" style="background: ${friend.status === 'В сети' ? '#4ade80' : '#8a6bbe'};"></span>
+                                ${friend.status}
+                            </div>
+                        </div>
+                        <div class="user-actions">
+                            <button class="action-btn-sm action-btn-primary" onclick="messenger.openChat('${friend.id}')">
+                                💬 Чат
+                            </button>
+                            <button class="action-btn-sm action-btn-secondary" onclick="messenger.startCall('audio', '${friend.id}')">
+                                📞
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+                
+                document.getElementById('badgeFriends').textContent = friends.length;
+            }
+            
+            renderRequests() {
+                const container = document.getElementById('requestsList');
+                
+                // Получаем запросы, адресованные текущему пользователю
+                const pendingRequests = this.requests.filter(r => 
+                    r.toId === this.currentUser.id && 
+                    r.status === 'pending'
+                );
+                
+                if (pendingRequests.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #b39fdb;">
+                            <div style="font-size: 48px; margin-bottom: 16px;">📨</div>
+                            <div style="font-size: 18px; margin-bottom: 8px;">Нет запросов</div>
+                            <div style="font-size: 14px;">Запросы в друзья появятся здесь</div>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = pendingRequests.map(request => {
+                        // Находим информацию о пользователе, который отправил запрос
+                        const fromUser = this.users.find(u => u.id === request.fromId);
+                        
+                        if (!fromUser) {
+                            return '';
+                        }
+                        
+                        return `
+                            <div class="user-card">
+                                <div class="user-avatar-md" style="background: ${this.getAvatarColor(request.fromId)};">
+                                    ${request.fromAvatar || fromUser.avatar}
+                                </div>
+                                <div class="user-details">
+                                    <div class="user-name-md">${request.fromName || fromUser.name}</div>
+                                    <div class="user-ip-display">IP: ${request.fromIp || fromUser.ip}</div>
+                                    <div style="font-size: 13px; color: #8a6bbe;">
+                                        @${request.fromUsername || fromUser.username}
+                                    </div>
+                                </div>
+                                <div class="user-actions">
+                                    <button class="action-btn-sm action-btn-primary" onclick="messenger.acceptRequest('${request.id}')">
+                                        Принять
+                                    </button>
+                                    <button class="action-btn-sm action-btn-secondary" onclick="messenger.rejectRequest('${request.id}')">
+                                        Отклонить
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+                
+                // Обновляем бейдж
+                document.getElementById('badgeRequests').textContent = pendingRequests.length;
+            }
+            
+            renderCalls() {
+                const container = document.getElementById('callsList');
+                const userCalls = this.calls.filter(c => c.userId === this.currentUser.id);
+                
+                if (userCalls.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #b39fdb;">
+                            <div style="font-size: 48px; margin-bottom: 16px;">📞</div>
+                            <div style="font-size: 18px; margin-bottom: 8px;">Нет звонков</div>
+                            <div style="font-size: 14px;">История звонков появится здесь</div>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = userCalls.map(call => {
+                    const icon = call.type === 'video' ? '📹' : '📞';
+                    const time = this.formatTime(call.timestamp);
+                    
+                    return `
+                        <div class="call-item">
+                            <div class="call-type">${icon}</div>
+                            <div class="call-info">
+                                <div class="call-name">${call.withUserName}</div>
+                                <div class="call-details">
+                                    ${time} • ${call.duration} • ${call.type === 'video' ? 'Видеозвонок' : 'Аудиозвонок'}
+                                </div>
+                            </div>
+                            <div class="user-actions">
+                                <button class="action-btn-sm action-btn-secondary" onclick="messenger.startCall('${call.type}', '${call.withUserId}')">
+                                    Повторить
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                document.getElementById('badgeCalls').textContent = userCalls.length;
+            }
+            
+            performSearch() {
+                const query = document.getElementById('searchInput').value.trim();
+                const searchType = document.querySelector('.search-tab.active').dataset.searchType;
+                const container = document.getElementById('searchResults');
+                
+                if (!query) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #b39fdb;">
+                            <div style="font-size: 48px; margin-bottom: 16px;">🔍</div>
+                            <div style="font-size: 18px; margin-bottom: 8px;">Начните поиск</div>
+                            <div style="font-size: 14px;">Введите имя, IP или логин пользователя</div>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                const friendIds = this.friends
+                    .filter(f => f.userId === this.currentUser.id)
+                    .map(f => f.friendId);
+                
+                let results = this.users.filter(user => 
+                    user.id !== this.currentUser.id && 
+                    !friendIds.includes(user.id)
+                );
+                
+                if (searchType === 'name') {
+                    results = results.filter(user => 
+                        user.name.toLowerCase().includes(query.toLowerCase())
+                    );
+                } else if (searchType === 'ip') {
+                    results = results.filter(user => 
+                        user.ip.includes(query)
+                    );
+                } else if (searchType === 'username') {
+                    results = results.filter(user => 
+                        user.username.toLowerCase().includes(query.toLowerCase())
+                    );
+                }
+                
+                if (results.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #b39fdb;">
+                            <div style="font-size: 48px; margin-bottom: 16px;">🔍</div>
+                            <div style="font-size: 18px; margin-bottom: 8px;">Ничего не найдено</div>
+                            <div style="font-size: 14px;">Попробуйте изменить запрос</div>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = results.map(user => {
+                    const existingRequest = this.requests.find(r => 
+                        r.fromId === this.currentUser.id && 
+                        r.toId === user.id && 
+                        r.status === 'pending'
+                    );
+                    
+                    return `
+                        <div class="user-card">
+                            <div class="user-avatar-md" style="background: ${this.getAvatarColor(user.id)};">
+                                ${user.avatar}
+                            </div>
+                            <div class="user-details">
+                                <div class="user-name-md">${user.name}</div>
+                                <div class="user-ip-display">IP: ${user.ip}</div>
+                                <div style="font-size: 13px; color: #8a6bbe;">
+                                    @${user.username}
+                                </div>
+                                <div class="user-status-md">
+                                    <span class="status-indicator" style="background: ${user.status === 'В сети' ? '#4ade80' : '#8a6bbe'};"></span>
+                                    ${user.status}
+                                </div>
+                            </div>
+                            <div class="user-actions">
+                                ${existingRequest ? `
+                                    <button class="action-btn-sm" style="background: #f39c12; color: white;" disabled>
+                                        Ожидает ответа
+                                    </button>
+                                ` : `
+                                    <button class="action-btn-sm action-btn-primary" onclick="messenger.sendFriendRequest('${user.id}')">
+                                        + Добавить
+                                    </button>
+                                `}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+            
+            clearSearch() {
+                document.getElementById('searchInput').value = '';
+                document.getElementById('searchResults').innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #b39fdb;">
+                        <div style="font-size: 48px; margin-bottom: 16px;">🔍</div>
+                        <div style="font-size: 18px; margin-bottom: 8px;">Начните поиск</div>
+                        <div style="font-size: 14px;">Введите имя, IP или логин пользователя</div>
+                    </div>
+                `;
+            }
+            
+            sendFriendRequest(friendId) {
+                const friend = this.users.find(u => u.id === friendId);
+                if (!friend) return;
+                
+                const newRequest = {
+                    id: `req_${Date.now()}`,
+                    fromId: this.currentUser.id,
+                    fromName: this.currentUser.name,
+                    fromAvatar: this.currentUser.avatar,
+                    fromUsername: this.currentUser.username,
+                    fromIp: this.currentUser.ip,
+                    toId: friendId,
+                    status: 'pending',
+                    timestamp: Date.now()
+                };
+                
+                // Добавляем запрос в локальный список текущего пользователя
+                this.requests.push(newRequest);
+                
+                // Сохраняем запрос и в данных получателя
+                this.saveRequestForUser(friendId, newRequest);
+                
+                // Сохраняем данные текущего пользователя
+                this.saveData();
+                
+                this.showNotification(`Запрос отправлен ${friend.name}`);
+                this.performSearch();
+            }
+            
+            saveRequestForUser(userId, request) {
+                const userDataKey = `apo_data_${userId}`;
+                let userData = localStorage.getItem(userDataKey);
+                
+                if (userData) {
+                    userData = JSON.parse(userData);
+                    userData.requests = userData.requests || [];
+                    // Проверяем, нет ли уже такого запроса
+                    if (!userData.requests.find(r => r.id === request.id)) {
+                        userData.requests.push(request);
+                        localStorage.setItem(userDataKey, JSON.stringify(userData));
+                    }
+                } else {
+                    // Если у пользователя еще нет данных, создаем их
+                    const newUserData = {
+                        friends: [],
+                        messages: [],
+                        requests: [request],
+                        calls: []
+                    };
+                    localStorage.setItem(userDataKey, JSON.stringify(newUserData));
+                }
+            }
+            
+            acceptRequest(requestId) {
+                const request = this.requests.find(r => r.id === requestId);
+                if (request) {
+                    // Обновляем статус запроса
+                    request.status = 'accepted';
+                    
+                    // Добавляем в друзья текущему пользователю
+                    this.friends.push({
+                        id: `friend_${Date.now()}`,
+                        userId: this.currentUser.id,
+                        friendId: request.fromId
+                    });
+                    
+                    // Добавляем взаимную дружбу для другого пользователя
+                    this.addFriendshipForUser(request.fromId, this.currentUser.id);
+                    
+                    // СОЗДАЕМ ПРИВЕТСТВЕННОЕ СООБЩЕНИЕ для текущего пользователя
+                    const welcomeMessage = {
+                        id: `msg_${Date.now()}`,
+                        senderId: request.fromId,
+                        receiverId: this.currentUser.id,
+                        text: `👋 Привет! Теперь мы друзья!`,
+                        timestamp: Date.now(),
+                        read: false
+                    };
+                    
+                    this.messages.push(welcomeMessage);
+                    
+                    // СОЗДАЕМ ПРИВЕТСТВЕННОЕ СООБЩЕНИЕ для другого пользователя
+                    const welcomeMessageForOther = {
+                        id: `msg_${Date.now()}_2`,
+                        senderId: this.currentUser.id,
+                        receiverId: request.fromId,
+                        text: `👋 Привет! Я принял твой запрос в друзья!`,
+                        timestamp: Date.now() + 1000,
+                        read: false
+                    };
+                    
+                    // Сохраняем сообщение для другого пользователя
+                    this.saveMessageForUser(request.fromId, welcomeMessageForOther);
+                    
+                    // Обновляем статус запроса у отправителя
+                    this.updateRequestStatusInSenderData(request.fromId, requestId, 'accepted');
+                    
+                    // Обновляем данные
+                    this.saveData();
+                    
+                    // Обновляем интерфейс
+                    this.renderRequests();
+                    this.renderFriends();
+                    this.renderChats();
+                    
+                    this.showNotification(`Вы приняли запрос от ${request.fromName}. Чат создан!`);
+                }
+            }
+            
+            addFriendshipForUser(userId, friendId) {
+                const userDataKey = `apo_data_${userId}`;
+                let userData = localStorage.getItem(userDataKey);
+                
+                if (userData) {
+                    userData = JSON.parse(userData);
+                    userData.friends = userData.friends || [];
+                    // Проверяем, нет ли уже такой дружбы
+                    if (!userData.friends.find(f => f.friendId === friendId)) {
+                        userData.friends.push({
+                            id: `friend_${Date.now()}`,
+                            userId: userId,
+                            friendId: friendId
+                        });
+                        localStorage.setItem(userDataKey, JSON.stringify(userData));
+                    }
+                } else {
+                    // Если у пользователя еще нет данных, создаем их
+                    const newUserData = {
+                        friends: [{
+                            id: `friend_${Date.now()}`,
+                            userId: userId,
+                            friendId: friendId
+                        }],
+                        messages: [],
+                        requests: [],
+                        calls: []
+                    };
+                    localStorage.setItem(userDataKey, JSON.stringify(newUserData));
+                }
+            }
+            
+            saveMessageForUser(userId, message) {
+                const userDataKey = `apo_data_${userId}`;
+                let userData = localStorage.getItem(userDataKey);
+                
+                if (userData) {
+                    userData = JSON.parse(userData);
+                    userData.messages = userData.messages || [];
+                    // Проверяем, нет ли уже такого сообщения
+                    if (!userData.messages.find(m => m.id === message.id)) {
+                        userData.messages.push(message);
+                        localStorage.setItem(userDataKey, JSON.stringify(userData));
+                    }
+                } else {
+                    // Если у пользователя еще нет данных, создаем их
+                    const newUserData = {
+                        friends: [],
+                        messages: [message],
+                        requests: [],
+                        calls: []
+                    };
+                    localStorage.setItem(userDataKey, JSON.stringify(newUserData));
+                }
+            }
+            
+            updateRequestStatusInSenderData(senderId, requestId, status) {
+                const userDataKey = `apo_data_${senderId}`;
+                let userData = localStorage.getItem(userDataKey);
+                
+                if (userData) {
+                    userData = JSON.parse(userData);
+                    if (userData.requests) {
+                        const request = userData.requests.find(r => r.id === requestId);
+                        if (request) {
+                            request.status = status;
+                            localStorage.setItem(userDataKey, JSON.stringify(userData));
+                        }
+                    }
+                }
+            }
+            
+            rejectRequest(requestId) {
+                const request = this.requests.find(r => r.id === requestId);
+                if (request) {
+                    request.status = 'rejected';
+                    // Обновляем статус запроса у отправителя
+                    this.updateRequestStatusInSenderData(request.fromId, requestId, 'rejected');
+                    this.saveData();
+                    this.renderRequests();
+                    this.showNotification(`Вы отклонили запрос от ${request.fromName}`);
+                }
+            }
+            
+            openChat(friendId) {
+                const friend = this.users.find(u => u.id === friendId);
+                if (!friend) return;
+                
+                this.currentChat = friend;
+                this.showPage('chat');
+                
+                document.getElementById('chatPartnerAvatar').textContent = friend.avatar;
+                document.getElementById('chatPartnerName').textContent = friend.name;
+                document.getElementById('chatPartnerStatus').textContent = friend.status;
+                
+                this.renderMessages();
+            }
+            
+            renderMessages() {
+                if (!this.currentChat) return;
+                
+                const container = document.getElementById('chatMessages');
+                const messages = this.messages
+                    .filter(m => 
+                        (m.senderId === this.currentUser.id && m.receiverId === this.currentChat.id) ||
+                        (m.senderId === this.currentChat.id && m.receiverId === this.currentUser.id)
+                    )
+                    .sort((a, b) => a.timestamp - b.timestamp);
+                
+                if (messages.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #b39fdb;">
+                            <div style="font-size: 48px; margin-bottom: 16px;">💬</div>
+                            <div style="font-size: 18px; margin-bottom: 8px;">Нет сообщений</div>
+                            <div style="font-size: 14px;">Начните общение первым</div>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = messages.map(message => {
+                    const isOutgoing = message.senderId === this.currentUser.id;
+                    const time = this.formatTime(message.timestamp, true);
+                    
+                    return `
+                        <div class="message ${isOutgoing ? 'outgoing' : 'incoming'}">
+                            <div class="message-text">${message.text}</div>
+                            <div class="message-time">${time}</div>
+                        </div>
+                    `;
+                }).join('');
+                
+                container.scrollTop = container.scrollHeight;
+            }
+            
+            sendMessage() {
+                if (!this.currentChat) {
+                    this.showNotification('Выберите чат для отправки сообщения');
+                    return;
+                }
+                
+                const input = document.getElementById('messageInput');
+                const text = input.value.trim();
+                
+                if (!text) {
+                    this.showNotification('Введите сообщение');
+                    return;
+                }
+                
+                const newMessage = {
+                    id: `msg_${Date.now()}`,
+                    senderId: this.currentUser.id,
+                    receiverId: this.currentChat.id,
+                    text: text,
+                    timestamp: Date.now(),
+                    read: false
+                };
+                
+                // 1. Сохраняем сообщение в данных текущего пользователя (отправителя)
+                this.messages.push(newMessage);
+                
+                // 2. Сохраняем сообщение в данных получателя
+                this.saveMessageForUser(this.currentChat.id, newMessage);
+                
+                // 3. Сохраняем данные текущего пользователя
+                this.saveData();
+                
+                // 4. Очищаем поле ввода
+                input.value = '';
+                
+                // 5. Обновляем отображение сообщений
+                this.renderMessages();
+                
+                // 6. Обновляем список чатов
+                this.renderChats();
+                
+                // 7. Прокрутка вниз
+                const container = document.getElementById('chatMessages');
+                container.scrollTop = container.scrollHeight;
+                
+                this.showNotification('Сообщение отправлено');
+            }
+            
+            startCall(type, userId = null) {
+                if (!userId && !this.currentChat) {
+                    this.showNotification('Выберите пользователя для звонка');
+                    return;
+                }
+                
+                const targetUserId = userId || this.currentChat.id;
+                const user = this.users.find(u => u.id === targetUserId);
+                
+                if (!user) return;
+                
+                const newCall = {
+                    id: `call_${Date.now()}`,
+                    userId: this.currentUser.id,
+                    type: type,
+                    withUserId: targetUserId,
+                    withUserName: user.name,
+                    duration: '0:00',
+                    timestamp: Date.now(),
+                    status: 'initiated'
+                };
+                
+                this.calls.push(newCall);
+                this.saveData();
+                this.renderCalls();
+                
+                const callType = type === 'video' ? 'видеозвонок' : 'аудиозвонок';
+                this.showNotification(`Инициирован ${callType} с ${user.name}`);
+                alert(`Инициирован ${callType} с ${user.name}. В реальном приложении здесь будет подключение WebRTC.`);
+            }
+            
+            saveProfile() {
+                const name = document.getElementById('settingName').value.trim();
+                const status = document.getElementById('settingStatus').value.trim();
+                
+                if (!name) {
+                    this.showNotification('Введите имя');
+                    return;
+                }
+                
+                this.currentUser.name = name;
+                this.currentUser.status = status;
+                this.currentUser.avatar = name.charAt(0).toUpperCase();
+                
+                this.saveData();
+                this.updateUserInfo();
+                this.renderChats();
+                this.showNotification('Профиль сохранен');
+            }
+            
+            logout() {
+                if (confirm('Вы уверены, что хотите выйти?')) {
+                    localStorage.removeItem('apo_current_user');
+                    this.currentUser = null;
+                    location.reload();
+                }
+            }
+            
+            copyIP() {
+                navigator.clipboard.writeText(this.currentUser.ip).then(() => {
+                    this.showNotification('IP скопирован в буфер обмена');
+                });
+            }
+            
+            showNotification(message) {
+                const notification = document.getElementById('notification');
+                notification.textContent = message;
+                notification.style.display = 'block';
+                
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 3000);
+            }
+            
+            formatTime(timestamp, showSeconds = false) {
+                const date = new Date(timestamp);
+                const now = new Date();
+                
+                if (date.toDateString() === now.toDateString()) {
+                    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                }
+                
+                const yesterday = new Date(now);
+                yesterday.setDate(yesterday.getDate() - 1);
+                if (date.toDateString() === yesterday.toDateString()) {
+                    return 'Вчера';
+                }
+                
+                const weekAgo = new Date(now);
+                weekAgo.setDate(weekAgo.getDate() - 7);
+                if (date > weekAgo) {
+                    const days = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+                    return days[date.getDay()];
+                }
+                
+                return date.toLocaleDateString();
+            }
+            
+            getAvatarColor(userId) {
+                const colors = ['#9d6bcc', '#6b3fa0', '#8b5cf6', '#7c3aed', '#4a2d7a', '#2d1b69'];
+                const index = parseInt(userId.replace(/\D/g, '')) || 0;
+                return colors[index % colors.length];
+            }
+        }
+
+        let messenger;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            messenger = new APOMessenger();
+            window.messenger = messenger;
+            
+            console.log('💜 APO Мессенджер готов!');
+            console.log('📱 Тестовые пользователи:');
+            console.log('- Иван: логин "ivan", пароль "123"');
+            console.log('- Алексей: логин "alex", пароль "123"');
+            console.log('- Мария: логин "maria", пароль "123"');
+            console.log('- Дмитрий: логин "dmitry", пароль "123"');
+            console.log('- Екатерина: логин "ekaterina", пароль "123"');
+            console.log('\n💡 Тестирование:');
+            console.log('1. Войдите как Иван (ivan/123)');
+            console.log('2. Найдите Алексея (alex) через поиск');
+            console.log('3. Отправьте запрос в друзья');
+            console.log('4. Войдите как Алексей (alex/123)');
+            console.log('5. Примите запрос в разделе "Запросы"');
+            console.log('6. Теперь у обоих пользователей будет общий чат');
+        });
+    </script>
+</body>
+</html>
